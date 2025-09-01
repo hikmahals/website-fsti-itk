@@ -1,7 +1,7 @@
 import '../css/app.css';
 import './bootstrap';
 
-import { createInertiaApp } from '@inertiajs/vue3';
+import { createInertiaApp, Link } from '@inertiajs/vue3'; 
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createApp, DefineComponent, h } from 'vue';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
@@ -19,6 +19,8 @@ createInertiaApp({
         createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue)
+            // Mendaftarkan <Link> secara global
+            .component('Link', Link) 
             .mount(el);
     },
     progress: {
