@@ -93,15 +93,7 @@ function hideDropdown() {
                 <!-- Logo -->
                 <div class="flex-shrink-0">
                     <Link href="/" class="flex items-center space-x-2">
-                        <!-- Ganti dengan SVG atau <img> logo Anda -->
-                        <svg class="h-10 w-auto" viewBox="0 0 165 58" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <text font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#003366">
-                                <tspan x="0" y="24">#FSTI</tspan>
-                            </text>
-                            <text font-family="Arial, sans-serif" font-size="24" font-style="italic" fill="#f0ad4e">
-                                <tspan x="75" y="45">Prestasi</tspan>
-                            </text>
-                        </svg>
+                        <img class="h-10 w-auto" src="/images/logofsti.png" alt="Logo FSTI">
                     </Link>
                 </div>
 
@@ -117,7 +109,7 @@ function hideDropdown() {
                         <!-- Tombol Menu Utama -->
                         <Link
                             :href="item.href"
-                            class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-700 hover:text-blue-800 transition-colors duration-200"
+                            class="inline-flex items-center px-1 pt-1 text-sm font-bold text-gray-700 hover:text-blue-800 transition-colors duration-200"
                         >
                             {{ item.name }}
                             <ChevronDown v-if="item.sublinks || item.megaMenu" class="ml-1 h-4 w-4" />
