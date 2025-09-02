@@ -18,7 +18,7 @@ class AchievementsController extends Controller
         $achievements = Achievement::latest()->paginate(10);
 
         // Render komponen Vue dan kirim data prestasi sebagai props
-        return Inertia::render('Admin/Achievement/Index', [
+        return Inertia::render('Admin/Achievements/Index', [
             'achievements' => $achievements
         ]);
     }

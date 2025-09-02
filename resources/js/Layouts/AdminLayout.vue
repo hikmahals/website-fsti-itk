@@ -13,15 +13,13 @@ import { ref, onMounted } from 'vue';
 const page = usePage();
 const isProfileOpen = ref(false);
 
-// State untuk melacak menu mana yang sedang dibuka
 const openMenu = ref<string | null>(null);
 
-// Menggunakan URL yang konsisten dengan file web.php Anda
 const navigation = ref([
   { name: 'Dashboard', href: '/admin/dashboard', icon: ChartBarSquareIcon, children: null },
   { 
     name: 'Berita', 
-    href: '/admin/posts', // Sesuai dengan web.php
+    href: null,
     icon: NewspaperIcon, 
     children: [
       { name: 'Kelola Berita', href: '/admin/posts' }
@@ -29,7 +27,7 @@ const navigation = ref([
   },
   { 
     name: 'Prestasi', 
-    href: '/admin/achievements', // Sesuai dengan web.php
+    href: null,
     icon: TrophyIcon,
     children: [
       { name: 'Kelola Daftar Prestasi', href: '/admin/achievements' }
@@ -38,66 +36,82 @@ const navigation = ref([
   { name: 'Kelola Akun Admin', href: '/admin/akun', icon: UsersIcon, children: null },
 ]);
 
-const isUrl = (...urls: string[]) => {
-  return urls.some(url => page.url.startsWith(url));
+// Fungsi untuk mengecek apakah URL saat ini cocok dengan salah satu anak menu
+const isParentUrlActive = (item: any) => {
+    if (!item.children) return false;
+    return item.children.some((child: any) => page.url.startsWith(child.href));
 };
 
-// --- FUNGSI DIPERBAIKI DENGAN LOGIKA NAVIGASI ---
+// Fungsi toggle yang benar
 const toggleSubMenu = (name: string) => {
   if (openMenu.value === name) {
-    // Jika menu yang sama diklik (untuk menutup):
-    openMenu.value = null; // 1. Tutup submenu
-    router.visit('/admin/dashboard'); // 2. Kembali ke halaman Dashboard
+    openMenu.value = null; // Jika menu sama diklik, tutup submenu
   } else {
-    // Jika menu baru diklik:
-    openMenu.value = name; // 1. Buka submenu yang baru
+    openMenu.value = name; // Jika menu lain diklik, buka submenu
   }
 };
 
-// Saat halaman pertama kali dimuat, buka submenu yang sesuai dengan URL
+// Saat halaman dimuat, buka submenu yang relevan
 onMounted(() => {
-  const currentItem = navigation.value.find(item => isUrl(item.href));
-  if (currentItem && currentItem.children) {
-    openMenu.value = currentItem.name;
+  const currentParent = navigation.value.find(item => isParentUrlActive(item));
+  if (currentParent) {
+    openMenu.value = currentParent.name;
   }
 });
 </script>
 
 <template>
   <div class="flex h-screen bg-gray-50 text-gray-800">
-    <aside class="flex w-72 flex-col bg-white px-5 pt-6 pb-4 border-r border-gray-200 shadow-lg">
+    <!-- PERUBAHAN: Menambahkan 'flex-shrink-0' agar sidebar tidak ikut terdorong/menyusut saat konten lebar -->
+    <aside class="flex w-72 flex-col flex-shrink-0 bg-white px-5 pt-6 pb-4 border-r border-gray-200 shadow-lg">
       <div class="px-4 mb-8">
         <img src="/images/logofsti.png" alt="Logo FSTV Prestasi" width="192" height="69" />
       </div>
 
       <nav class="flex-1 space-y-3">
         <template v-for="item in navigation" :key="item.name">
-          <!-- Wrapper untuk menyatukan menu dan submenu -->
           <div>
-            <component 
-              :is="item.children ? 'button' : Link"
+            <!-- Link untuk menu tanpa anak -->
+            <Link
+              v-if="!item.children"
               :href="item.href"
-              @click="item.children ? toggleSubMenu(item.name) : null"
               :class="[
-                'flex items-center w-full p-3 transition-colors duration-200 text-left',
-                openMenu === item.name ? 'rounded-t-lg' : 'rounded-lg',
-                (isUrl(item.href) && !item.children)
+                'flex items-center w-full p-3 transition-colors duration-200 rounded-lg',
+                page.url.startsWith(item.href)
                   ? 'bg-[#4682A9] text-white shadow-md'
                   : 'bg-[#CBDCEB] text-gray-800 hover:bg-[#a6c1da]', 
               ]"
             >
               <span class="flex items-center justify-center h-8 w-8 bg-white rounded-full">
-                <component :is="item.icon" :class="['h-5 w-5', isUrl(item.href) ? 'text-[#4682A9]' : 'text-gray-600']" />
+                <component :is="item.icon" :class="['h-5 w-5', page.url.startsWith(item.href) ? 'text-[#4682A9]' : 'text-gray-600']" />
               </span>
               <span class="ml-4 font-semibold">{{ item.name }}</span>
               <ChevronRightIcon class="h-5 w-5 ml-auto" />
-            </component>
+            </Link>
+
+            <!-- Tombol untuk menu dengan anak -->
+            <button
+              v-else
+              @click="toggleSubMenu(item.name)"
+              :class="[
+                'flex items-center w-full p-3 transition-colors duration-200 text-left',
+                openMenu === item.name ? 'rounded-t-lg' : 'rounded-lg',
+                'bg-[#CBDCEB] text-gray-800 hover:bg-[#a6c1da]',
+              ]"
+            >
+              <span class="flex items-center justify-center h-8 w-8 bg-white rounded-full">
+                <component :is="item.icon" :class="['h-5 w-5', isParentUrlActive(item) ? 'text-[#4682A9]' : 'text-gray-600']" />
+              </span>
+              <span class="ml-4 font-semibold">{{ item.name }}</span>
+              <ChevronRightIcon class="h-5 w-5 ml-auto" />
+            </button>
             
+            <!-- Submenu -->
             <div v-if="item.children && openMenu === item.name">
               <Link v-for="child in item.children" :key="child.name" :href="child.href"
                 :class="[
                     'block w-full text-center py-2 font-semibold transition-colors duration-200 rounded-b-lg',
-                     page.url.startsWith(child.href) 
+                    page.url.startsWith(child.href) 
                       ? 'bg-[#4682A9] text-white' 
                       : 'bg-[#CBDCEB] text-black hover:bg-[#a6c1da]'
                 ]"
@@ -124,7 +138,8 @@ onMounted(() => {
       </div>
     </aside>
 
-    <div class="flex flex-1 flex-col">
+    <!-- PERUBAHAN: Menambahkan 'overflow-x-hidden' agar container ini tidak ikut scroll -->
+    <div class="flex flex-1 flex-col overflow-x-hidden">
       <header class="flex items-center justify-end border-b border-gray-200 bg-white px-6 py-3 shadow-md">
         <div class="relative">
           <button @click="isProfileOpen = !isProfileOpen" class="flex items-center gap-4 p-1 rounded-lg">
@@ -133,7 +148,7 @@ onMounted(() => {
               <p class="text-sm text-gray-500">Super Admin</p>
             </div>
             <div class="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center border-2 border-black">
-               <UsersIcon class="h-8 w-8 text-gray-400" />
+                <UsersIcon class="h-8 w-8 text-gray-400" />
             </div>
           </button>
           
@@ -146,9 +161,11 @@ onMounted(() => {
         </div>
       </header>
       
-      <main class="flex-1 overflow-y-auto bg-[#CBDCEB] p-8">
+      <!-- PERUBAHAN: Mengganti 'overflow-y-auto' menjadi 'overflow-auto' agar bisa scroll horizontal & vertikal -->
+      <main class="flex-1 overflow-auto bg-[#CBDCEB] p-8">
         <slot />
       </main>
     </div>
   </div>
 </template>
+
