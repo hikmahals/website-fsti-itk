@@ -8,6 +8,7 @@ use Inertia\Inertia;
 // Import semua controller admin Anda di sini
 use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\AchievementsController;
+use App\Http\Controllers\PublicPostController;
 
 Route::get('/', function () {
     return Inertia::render('Home', [
@@ -51,5 +52,10 @@ Route::get('/dashboard', function () {
     return redirect()->route('admin.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+// Route untuk menampilkan daftar semua berita
+Route::get('/berita', [PublicPostController::class, 'index'])->name('berita.index');
+
+// Route untuk menampilkan satu berita berdasarkan slug-nya
+Route::get('/berita/{post:slug}', [PublicPostController::class, 'show'])->name('berita.show');
 
 require __DIR__ . '/auth.php';

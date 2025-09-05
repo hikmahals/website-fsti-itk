@@ -4,6 +4,7 @@ import {
     MagnifyingGlassIcon, 
     PlusIcon, 
     FunnelIcon,
+    // PERUBAHAN: ChevronDownIcon tidak lagi digunakan, namun kita biarkan di sini jika diperlukan lagi
     ChevronDownIcon,
     EyeIcon,
     PencilSquareIcon,
@@ -13,7 +14,7 @@ import {
 } from '@heroicons/vue/24/outline';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { ref, watch, computed } from 'vue';
-import throttle from "lodash/throttle";
+import { throttle } from 'lodash';
 
 defineOptions({ layout: AdminLayout });
 
@@ -32,6 +33,10 @@ const props = defineProps<{
             label: string;
             active: boolean;
         }>;
+        // PERUBAHAN: Menambahkan tipe data untuk informasi paginasi
+        from: number;
+        to: number;
+        total: number;
     };
     filters: {
         search: string | null;
@@ -40,13 +45,12 @@ const props = defineProps<{
 }>();
 
 const search = ref(props.filters.search);
-const status = ref(props.filters.status);
+const status = ref(props.filters.status || '');
 
-// PERUBAHAN: Menambahkan anotasi tipe eksplisit pada parameter fungsi throttle
 watch([search, status], throttle(function ([searchVal, statusVal]: [(string | null), (string | null)]) {
     router.get(route('admin.posts.index'), {
         search: searchVal,
-        status: statusVal,
+        status: statusVal === '' ? null : statusVal,
     }, {
         preserveState: true,
         replace: true,
@@ -122,12 +126,11 @@ const formatDate = (datetime: string) => {
             
             <div class="relative flex-shrink-0">
                 <FunnelIcon class="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-gray-500"/>
-                <select v-model="status" class="w-full appearance-none rounded-lg border border-gray-300 bg-white py-3 pl-11 pr-10 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
-                    <option :value="null">Semua Status</option>
+                <select v-model="status" class="w-full rounded-lg border border-gray-300 bg-white py-3 pl-11 pr-10 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
+                    <option value="">Semua Status</option>
                     <option value="Terbitkan">Terbitkan</option>
                     <option value="Draft">Draft</option>
                 </select>
-                <ChevronDownIcon class="pointer-events-none absolute top-1/2 right-4 h-5 w-5 -translate-y-1/2 text-gray-500"/>
             </div>
         </div>
 
@@ -183,7 +186,18 @@ const formatDate = (datetime: string) => {
 
             <!-- Paginasi -->
             <div class="flex items-center justify-between mt-4">
-                <p class="text-sm text-black"></p>
+                <!-- PERUBAHAN: Menampilkan informasi jumlah data -->
+                <p v-if="props.posts.total > 0" class="text-sm text-black">
+                    Menampilkan
+                    <span class="font-medium">{{ props.posts.from }}</span>
+                    sampai
+                    <span class="font-medium">{{ props.posts.to }}</span>
+                    dari
+                    <span class="font-medium">{{ props.posts.total }}</span>
+                    hasil
+                </p>
+                <p v-else></p>
+
                 <div class="flex items-center gap-1">
                     <Link 
                         v-for="(link, index) in props.posts.links" 

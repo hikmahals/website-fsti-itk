@@ -6,7 +6,7 @@ import { ChevronDown, Search } from 'lucide-vue-next';
 // --- Data untuk Menu Navigasi ---
 // Menyimpan data menu dalam sebuah array membuatnya lebih mudah dikelola.
 const navigationMenu = [
-    { name: 'Beranda', href: '#' },
+    { name: 'Beranda', href: '/' },
     {
         name: 'Profil',
         href: '#',
@@ -63,11 +63,11 @@ const navigationMenu = [
         name: 'Kemahasiswaan',
         href: '#',
         sublinks: [
-            { name: 'Prestasi Mahasiswa', href: '#' },
+        { name: 'Prestasi Mahasiswa', href: '/prestasi' },
             { name: 'Portal Layanan Mahasiswa', href: '#' },
         ],
     },
-    { name: 'Berita', href: '#' },
+{ name: 'Berita', href: '/berita' },
     { name: 'Kontak', href: '#' },
 ];
 
@@ -109,7 +109,7 @@ function hideDropdown() {
                         <!-- Tombol Menu Utama -->
                         <Link
                             :href="item.href"
-                            class="inline-flex items-center px-1 pt-1 text-sm font-bold text-gray-700 hover:text-blue-800 transition-colors duration-200"
+                            class="inline-flex items-center px-1 pt-1 text-sm font-bold text-gray-700 hover:text-[#133E87] transition-colors duration-200"
                         >
                             {{ item.name }}
                             <ChevronDown v-if="item.sublinks || item.megaMenu" class="ml-1 h-4 w-4" />
@@ -132,7 +132,7 @@ function hideDropdown() {
                                     <template v-for="sublink in item.sublinks" :key="sublink.name">
                                         <!-- Submenu dengan sub-sub menu -->
                                         <div v-if="sublink.sublinks" class="relative group">
-                                            <button class="w-full text-left flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            <button class="w-full text-left flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#133E87]">
                                                 {{ sublink.name }}
                                                 <ChevronDown class="h-4 w-4 transform -rotate-90" />
                                             </button>

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 // Import komponen Navbar dan Footer
 import Navbar from '@/Components/Navbar.vue';
-// Footer akan kita buat selanjutnya, untuk sekarang bisa berupa placeholder
-// import Footer from '@/components/Footer.vue'; 
+import Footer from '@/Components/Footer.vue'; 
 </script>
 
 <template>
@@ -17,8 +16,6 @@ import Navbar from '@/Components/Navbar.vue';
 
     <!-- Footer akan selalu tampil di bagian bawah -->
     <!-- <Footer /> -->
-    <footer class="bg-gray-800 text-white py-8 text-center">
-        <p>(Placeholder untuk Footer)</p>
-    </footer>
+     <Footer />
   </div>
 </template>
