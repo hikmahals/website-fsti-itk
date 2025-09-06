@@ -36,7 +36,11 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
     // Route untuk Achievements (Prestasi)
     // URL: /admin/achievements
-    Route::get('/achievements', [AchievementsController::class, 'index'])->name('achievements.index');
+
+    Route::post('/achievements/import', [AchievementsController::class, 'import'])->name('achievements.import');
+    Route::get('/achievements/export', [AchievementsController::class, 'export'])->name('achievements.export');
+
+    Route::resource('/achievements', AchievementsController::class);
     // Tambahkan route lain untuk achievements di sini nanti
 
 });
@@ -63,7 +67,8 @@ require __DIR__ . '/auth.php';
 
 Route::get('/', function () {
     // Ambil 3 berita terbaru yang sudah 'Terbitkan'
-    $latestPosts = Post::where('status', 'Terbitkan')
+    $latestPosts = Post::where('category', '!=', 'Prestasi')
+        ->where('status', 'Terbitkan')
         ->latest('published_at')
         ->take(3)
         ->get();

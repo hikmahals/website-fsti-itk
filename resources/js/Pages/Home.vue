@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import PublicLayout from '@/Layouts/PublicLayout.vue';
-import HomeArticleCard from '@/Components/HomeArticleCard.vue'; // Gunakan komponen khusus beranda
+import HomeArticleCard from '@/Components/HomeArticleCard.vue';
 import { Link } from '@inertiajs/vue3';
 import { GraduationCap, Trophy, CheckSquare, Building2, BookOpen, UserCheck, Users, ArrowRight } from 'lucide-vue-next';
 import type { Post } from '@/types';
@@ -85,7 +85,7 @@ const props = defineProps<{
                             </div>
                             <div class="bg-[#CBDCEB] text-[#133E87] p-4 rounded-lg shadow-sm text-center">
                                 <Users :size="28" class="mx-auto" />
-                                <span class="block mt-1 text-sm">6</span>
+                                <span class="block mt-2 text-3xl font-bold">6</span>
                                 <span class="block mt-1 text-sm">Tendik</span>
                             </div>
                         </div>

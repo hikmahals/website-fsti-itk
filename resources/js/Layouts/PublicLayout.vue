@@ -5,7 +5,7 @@ import Footer from '@/Components/Footer.vue';
 </script>
 
 <template>
-  <div class="bg-white font-sans antialiased">
+  <div class="bg-white font-sans antialiased overflow-x-hidden">
     <!-- Navbar akan selalu tampil di bagian atas -->
     <Navbar />
 

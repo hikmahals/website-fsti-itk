@@ -50,3 +50,24 @@ export interface Filters {
     search: string | null;
     category: string | null;
 }
+
+export interface Achievement {
+  id: number;
+  student_name: string;
+  student_nim: string;
+  study_program: string;
+  achievement_name: string;
+  category: 'Akademik' | 'Non-Akademik';
+  level: 'Internasional' | 'Nasional' | 'Provinsi' | 'Kota/Kabupaten' | 'Universitas';
+  organizer: string;
+  year: number;
+  proof_url?: string | null; // URL lengkap untuk file bukti
+}
+
+export interface PaginatedAchievements {
+  data: Achievement[];
+  links: PaginatorLink[];
+  from: number;
+  to: number;
+  total: number;
+}
