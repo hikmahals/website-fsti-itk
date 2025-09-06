@@ -13,13 +13,15 @@ export type PageProps<
     };
 };
 
+// --- TIPE UNTUK HALAMAN BERITA ---
+
 export interface Post {
   id: number;
   title: string;
   slug: string;
   excerpt: string;
   content: string;
-  image_url: string | null;
+  image_url: string | null; // Sesuai dengan accessor yang Anda buat
   category: 'Prestasi' | 'Liputan Kegiatan' | 'Kerjasama';
   tags: string | null;
   status: 'Draft' | 'Terbitkan';
@@ -38,4 +40,13 @@ export interface PaginatorLink {
 export interface PaginatedPosts {
   data: Post[];
   links: PaginatorLink[];
+  from: number;
+  to: number;
+  total: number;
+}
+
+// Tipe untuk menampung filter yang dikirim dari controller
+export interface Filters {
+    search: string | null;
+    category: string | null;
 }

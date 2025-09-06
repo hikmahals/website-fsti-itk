@@ -9,6 +9,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\AchievementsController;
 use App\Http\Controllers\PublicPostController;
+use App\Models\Post;
 
 Route::get('/', function () {
     return Inertia::render('Home', [
@@ -59,3 +60,16 @@ Route::get('/berita', [PublicPostController::class, 'index'])->name('berita.inde
 Route::get('/berita/{post:slug}', [PublicPostController::class, 'show'])->name('berita.show');
 
 require __DIR__ . '/auth.php';
+
+Route::get('/', function () {
+    // Ambil 3 berita terbaru yang sudah 'Terbitkan'
+    $latestPosts = Post::where('status', 'Terbitkan')
+        ->latest('published_at')
+        ->take(3)
+        ->get();
+
+    return Inertia::render('Home', [
+        // ... props lain yang sudah ada ...
+        'latestPosts' => $latestPosts, // <-- Kirim data berita ke frontend
+    ]);
+});
