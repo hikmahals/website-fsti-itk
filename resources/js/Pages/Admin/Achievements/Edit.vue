@@ -1,19 +1,17 @@
 <script setup lang="ts">
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { useForm, Link } from '@inertiajs/vue3';
-import { ArrowLeftIcon, PaperAirplaneIcon, PaperClipIcon, TrashIcon } from '@heroicons/vue/24/outline';
+import { ArrowLeftIcon, PaperAirplaneIcon, PaperClipIcon, TrashIcon, EyeIcon, XCircleIcon } from '@heroicons/vue/24/outline';
 import type { Achievement } from '@/types';
 
 defineOptions({ layout: AdminLayout });
 
-// 1. Terima prop 'achievement' yang dikirim dari controller
 const props = defineProps<{
   achievement: Achievement;
 }>();
 
-// 2. Isi form dengan data dari prop 'achievement'
 const form = useForm({
-  _method: 'PUT', // Penting untuk menangani file upload saat update
+  _method: 'PUT',
   student_name: props.achievement.student_name,
   student_nim: props.achievement.student_nim,
   study_program: props.achievement.study_program,
@@ -25,10 +23,19 @@ const form = useForm({
   proof: null as File | null,
 });
 
-// 3. Kirim data ke route 'achievements.update'
 const submit = () => {
   form.post(route('admin.achievements.update', props.achievement.id));
 };
+
+// Fungsi untuk menghapus file yang dipilih dari form
+const clearSelectedFile = () => {
+    form.proof = null;
+    // Reset input file agar bisa memilih file yang sama lagi
+    const fileInput = document.getElementById('proof') as HTMLInputElement;
+    if (fileInput) {
+        fileInput.value = '';
+    }
+}
 </script>
 
 <template>
@@ -119,12 +126,19 @@ const submit = () => {
             <div class="mt-1 flex items-center gap-4">
                 <div class="relative flex-grow flex items-center w-full rounded-md border border-gray-300 bg-white shadow-sm px-4 py-2">
                     <PaperClipIcon class="h-5 w-5 text-gray-400" />
-                    <span class="ml-3 text-sm" :class="{'text-gray-400': !form.proof, 'text-black': form.proof}">
+                    <span class="ml-3 text-sm" :class="{'text-gray-500': !form.proof, 'text-black': form.proof}">
                         {{ form.proof ? form.proof.name : 'Pilih file baru untuk mengganti...' }}
                     </span>
                     <input type="file" id="proof" @input="form.proof = ($event.target as HTMLInputElement).files?.[0] || null" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                    <button v-if="form.proof" @click="clearSelectedFile" type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-red-500">
+                        <XCircleIcon class="h-5 w-5"/>
+                    </button>
                 </div>
-                <a v-if="achievement.proof_url" :href="achievement.proof_url" target="_blank" class="flex-shrink-0 text-sm text-blue-600 hover:underline">Lihat Bukti Saat Ini</a>
+                <a v-if="achievement.proof_url" :href="achievement.proof_url" target="_blank" class="flex-shrink-0 flex items-center gap-1.5 text-sm text-blue-600 hover:underline">
+                    <EyeIcon class="h-5 w-5"/>
+                    Lihat Bukti
+                </a>
+                <span v-else class="text-sm text-gray-400 italic">Tidak ada bukti</span>
             </div>
             <p v-if="form.errors.proof" class="mt-2 text-sm text-red-600">{{ form.errors.proof }}</p>
           </div>

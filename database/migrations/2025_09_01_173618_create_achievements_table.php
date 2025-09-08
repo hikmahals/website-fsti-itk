@@ -22,7 +22,7 @@ return new class extends Migration
                 'Sistem Informasi',
                 'Informatika',
                 'Bisnis Digital',
-                'Magister Manajemen Teknoogi',
+                'Magister Manajemen Teknologi',
                 'Fisika',
                 'Matematika',
                 'Statistika',

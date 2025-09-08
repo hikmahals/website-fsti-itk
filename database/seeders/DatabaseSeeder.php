@@ -9,7 +9,7 @@ use Illuminate\Database\Seeder;
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Seed the application's database.
+     * Seed database aplikasi.
      */
     public function run(): void
     {
@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             PostSeeder::class,
+            AchievementSeeder::class,
         ]);
     }
 }
