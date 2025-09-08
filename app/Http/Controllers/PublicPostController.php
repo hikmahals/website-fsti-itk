@@ -5,14 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Storage;
 
 class PublicPostController extends Controller
 {
+    /**
+     * Menampilkan halaman daftar berita publik dengan filter.
+     */
     public function index(Request $request)
     {
-        // --- Query Utama untuk Daftar Berita ---
-        $query = Post::query()->where('status', 'Terbitkan');
+        $query = Post::where('status', 'Terbitkan');
 
         // Terapkan filter pencarian jika ada
         if ($request->filled('search')) {
@@ -24,57 +25,40 @@ class PublicPostController extends Controller
             $query->where('category', $request->category);
         }
 
-        $posts = $query->latest('published_at')->paginate(6)->withQueryString();
+        // Ambil data setelah difilter, urutkan, dan paginasi
+        $posts = $query->latest('published_at')->paginate(9)->withQueryString();
 
-        // Tambahkan URL gambar untuk daftar berita utama
-        $posts->getCollection()->transform(function ($post) {
-            if ($post->image_path) {
-                $post->image_url = Storage::url($post->image_path);
-            }
-            return $post;
-        });
-
-        // --- Query untuk Sidebar "Berita Terbaru" ---
-        $recentPosts = Post::where('status', 'Terbitkan')
-            ->latest('published_at')
-            ->take(5) // Ambil 5 berita terbaru
-            ->get();
-
-        // Tambahkan URL gambar untuk berita terbaru
-        $recentPosts->transform(function ($post) {
-            if ($post->image_path) {
-                $post->image_url = Storage::url($post->image_path);
-            }
-            return $post;
-        });
-
-        // --- Query untuk Filter Kategori ---
-        $categories = Post::where('status', 'Terbitkan')
-            ->distinct()
-            ->pluck('category');
-
-        // PERUBAHAN: Memastikan path ini cocok dengan nama folder Anda 'Berita'
         return Inertia::render('Public/Berita/Index', [
             'posts' => $posts,
-            'recentPosts' => $recentPosts,
-            'categories' => $categories,
+            'recentPosts' => Post::where('status', 'Terbitkan')->latest('published_at')->take(5)->get(),
+            'categories' => Post::where('status', 'Terbitkan')->distinct()->pluck('category')->all(),
             'filters' => $request->only(['search', 'category']),
         ]);
     }
 
+    /**
+     * Menampilkan halaman detail untuk satu berita.
+     */
     public function show(Post $post)
     {
-        if ($post->status !== 'Terbitkan' || is_null($post->published_at)) {
+        // Pastikan hanya berita yang sudah "Terbitkan" yang bisa diakses publik.
+        if ($post->status !== 'Terbitkan') {
             abort(404);
         }
 
-        if ($post->image_path) {
-            $post->image_url = Storage::url($post->image_path);
-        }
+        // Tambah jumlah 'views' setiap kali berita ini dilihat.
+        $post->increment('views');
 
-        // PERUBAHAN: Memastikan path ini cocok dengan nama folder Anda 'Berita'
+        // PERBAIKAN: Ambil berita terbaru lainnya untuk sidebar
+        $recentPosts = Post::where('status', 'Terbitkan')
+            ->where('id', '!=', $post->id) // Kecualikan berita yang sedang dibaca
+            ->latest('published_at')
+            ->take(5)
+            ->get();
+
         return Inertia::render('Public/Berita/Show', [
             'post' => $post,
+            'recentPosts' => $recentPosts, // Kirim data berita terbaru ke view
         ]);
     }
 }

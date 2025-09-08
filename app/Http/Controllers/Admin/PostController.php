@@ -14,46 +14,39 @@ class PostController extends Controller
     /**
      * Menampilkan halaman utama daftar berita dengan filter.
      */
-    public function index(Request $request) // PERUBAHAN: Menambahkan Request
+    public function index(Request $request)
     {
-        // PERUBAHAN: Memulai query builder dan menerapkan filter
         $query = Post::query();
 
-        // Terapkan filter pencarian jika ada
-        if ($request->has('search')) {
+        if ($request->filled('search')) {
             $query->where('title', 'like', '%' . $request->search . '%');
         }
 
-        // Terapkan filter status jika ada
-        if ($request->has('status') && in_array($request->status, ['Terbitkan', 'Draft'])) {
+        if ($request->filled('status') && in_array($request->status, ['Terbitkan', 'Draft'])) {
             $query->where('status', $request->status);
         }
 
-        // Ambil data setelah difilter, urutkan, dan paginasi
+        // Ambil data. 'image_url' akan otomatis ada berkat perbaikan di Model.
+        // Tidak perlu lagi blok ->transform() di sini.
         $posts = $query->latest()->paginate(10)->withQueryString();
-
-        // Tambahkan image_url
-        $posts->getCollection()->transform(function ($post) {
-            if ($post->image_path) {
-                $post->image_url = Storage::url($post->image_path);
-            }
-            return $post;
-        });
 
         return Inertia::render('Admin/Posts/Index', [
             'posts' => $posts,
-            // PERUBAHAN: Kirim kembali nilai filter ke frontend
             'filters' => $request->only(['search', 'status']),
         ]);
     }
 
-    // ... sisa method (create, store, edit, update, destroy) tidak perlu diubah ...
-
+    /**
+     * Menampilkan form untuk membuat berita baru.
+     */
     public function create()
     {
         return Inertia::render('Admin/Posts/Create');
     }
 
+    /**
+     * Menyimpan berita baru ke database.
+     */
     public function store(Request $request)
     {
         $validatedData = $request->validate([
@@ -79,17 +72,22 @@ class PostController extends Controller
         return redirect()->route('admin.posts.index')->with('success', 'Berita berhasil ditambahkan.');
     }
 
+    /**
+     * Menampilkan form untuk mengedit berita.
+     */
     public function edit(Post $post)
     {
-        if ($post->image_path) {
-            $post->image_url = Storage::url($post->image_path);
-        }
-
+        // PERBAIKAN: Tidak perlu kode apa pun di sini untuk membuat URL.
+        // Inertia akan otomatis mendapatkan 'image_url' dari model Post
+        // karena sudah ada accessor dan properti $appends di sana.
         return Inertia::render('Admin/Posts/Edit', [
             'post' => $post
         ]);
     }
 
+    /**
+     * Memperbarui berita di database.
+     */
     public function update(Request $request, Post $post)
     {
         $validatedData = $request->validate([
@@ -123,6 +121,9 @@ class PostController extends Controller
         return redirect()->route('admin.posts.index')->with('success', 'Berita berhasil diperbarui.');
     }
 
+    /**
+     * Menghapus berita dari database.
+     */
     public function destroy(Post $post)
     {
         if ($post->image_path) {

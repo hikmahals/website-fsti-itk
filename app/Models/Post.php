@@ -19,21 +19,25 @@ class Post extends Model
         'tags',
         'status',
         'image_path',
+        'published_at',
     ];
 
-    // otomatis append image_url saat di-convert ke array/JSON
     protected $appends = ['image_url'];
 
     /**
      * Accessor untuk image_url
+     * * PERBAIKAN FINAL: Gunakan disk 'public' secara eksplisit.
      */
-    public function getImageUrlAttribute()
+    public function getImageUrlAttribute(): ?string
     {
-        if ($this->image_path && Storage::exists('public/' . $this->image_path)) {
-            return Storage::url($this->image_path);
+        // Pastikan image_path tidak kosong dan file-nya ada di disk 'public'
+        if ($this->image_path && Storage::disk('public')->exists($this->image_path)) {
+            // Membuat URL yang benar dari disk 'public'
+            return Storage::disk('public')->url($this->image_path);
         }
 
-        // fallback jika tidak ada gambar
-        return asset('default/post-placeholder.png');
+        // PERBAIKAN: Jika tidak ada gambar, kembalikan null.
+        // Jangan gunakan asset() di sini agar konsisten.
+        return null;
     }
 }

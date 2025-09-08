@@ -3,58 +3,48 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Support\Arr;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Post>
- */
 class PostFactory extends Factory
 {
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
     public function definition(): array
     {
-        // Gunakan path tanpa prefix 'public' — karena kita pakai disk('public')
-        $imageDirectory = 'posts';
+        $imagePathForDatabase = null;
+        $directory = 'posts'; // Path relatif di dalam disk 'public'
 
-        // Ambil file dari disk public (storage/app/public/posts)
-        $files = collect(Storage::disk('public')->files($imageDirectory))
-            ->filter(fn($file) => preg_match('/\.(jpg|jpeg|png|gif)$/i', $file))
-            ->values()
-            ->all();
+        // PERBAIKAN: Secara eksplisit gunakan disk 'public' untuk membaca file
+        $existingImages = Storage::disk('public')->files($directory);
 
-        // Jika kosong, gunakan fallback (pastikan file default ada di storage/app/public/default/post-placeholder.png)
-        if (empty($files)) {
-            $files = ['default/post-placeholder.png'];
+        // Jika ada gambar di dalam folder storage/app/public/posts, pilih satu
+        if (!empty($existingImages)) {
+            // $existingImages akan berisi path seperti "posts/berita1.png"
+            $randomImage = Arr::random($existingImages);
+            // Path ini sudah benar untuk disimpan di database
+            $imagePathForDatabase = $randomImage;
         }
-
-        // Konten contoh
-        $titles = [
-            'Mahasiswa FSTI ITK Raih Juara 1 di Kompetisi Gemastik 2025',
-            'Seminar Nasional: Tren Kecerdasan Buatan di Era Industri 5.0',
-            'Workshop Cybersecurity untuk Mahasiswa: Melindungi Aset Digital',
-            'FSTI ITK Buka Program Studi Baru: Sains Data Terapan',
-            'Pengabdian Masyarakat oleh Dosen FSTI di Desa Bukit Merdeka',
-            'Kunjungan Industri Mahasiswa Informatika ke Kantor Google Indonesia',
-        ];
-
-        $title = $this->faker->randomElement($titles);
-        $content = '<p>' . implode('</p><p>', $this->faker->paragraphs(rand(5, 10))) . '</p>';
-        $publishedDate = $this->faker->dateTimeBetween('-1 year', 'now');
-
-        $categories = ['Prestasi', 'Liputan Kegiatan', 'Kerjasama'];
-        $tags = ['ITK', 'FSTI', 'Prestasi', 'Seminar', 'Workshop', 'Sains Data', 'Cybersecurity', 'AI'];
-        $statuses = ['Terbitkan', 'Draft'];
+        
+        $title = $this->faker->sentence(mt_rand(3, 6));
+        $slug = Str::slug($title, '-');
 
         return [
-            'title'        => $title,
-            'slug' => Str::slug($this->faker->unique()->sentence()) . '-' . Str::random(5),
-            'excerpt'      => Str::limit(strip_tags($content), 150),
-            'content'      => $content,
-            'image_path'   => $this->faker->randomElement($files), // contoh: 'posts/xxx.jpg' atau 'default/post-placeholder.png'
-            'category'     => $this->faker->randomElement($categories),
-            'tags'         => implode(',', $this->faker->randomElements($tags, rand(1, 3))),
-            'status'       => $this->faker->randomElement($statuses),
-            'published_at' => $publishedDate,
+            'title' => $title,
+            'slug' => $slug,
+            'excerpt' => $this->faker->sentence(mt_rand(10, 15)),
+            'content' => $this->faker->paragraphs(mt_rand(5, 10), true),
+            'category' => $this->faker->randomElement(['Prestasi', 'Liputan Kegiatan', 'Kerjasama']),
+            'tags' => implode(',', $this->faker->words(mt_rand(2, 5))),
+            'status' => $this->faker->randomElement(['Draft', 'Terbitkan']),
+            'published_at' => now(),
+            // Simpan path yang benar
+            'image_path' => $imagePathForDatabase,
         ];
     }
 }
+

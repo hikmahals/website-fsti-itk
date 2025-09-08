@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\Post;
-use Illuminate\Support\Facades\DB; // <-- Tambahkan ini
+use Illuminate\Database\Seeder;
+// Hapus 'use Illuminate\Support\Facades\Storage;' karena tidak lagi dibutuhkan
 
 class PostSeeder extends Seeder
 {
@@ -14,10 +13,14 @@ class PostSeeder extends Seeder
      */
     public function run(): void
     {
-        // Kosongkan tabel posts sebelum diisi
-        DB::table('posts')->truncate();
+        // PERBAIKAN: Hanya hapus record dari tabel database.
+        Post::truncate();
 
-        // Buat 10 data berita palsu menggunakan factory
-        Post::factory(10)->create();
+        // PERBAIKAN: Hapus baris di bawah ini yang membersihkan direktori storage.
+        // Storage::deleteDirectory('public/posts');
+        // Storage::makeDirectory('public/posts');
+
+        // Jalankan factory untuk membuat 15 berita baru
+        Post::factory(15)->create();
     }
 }

@@ -4,9 +4,8 @@ import { Link } from '@inertiajs/vue3';
 import { ChevronDown, Search } from 'lucide-vue-next';
 
 // --- Data untuk Menu Navigasi ---
-// Menyimpan data menu dalam sebuah array membuatnya lebih mudah dikelola.
 const navigationMenu = [
-    { name: 'Beranda', href: '/' },
+    { name: 'Beranda', href: route('home') },
     {
         name: 'Profil',
         href: '#',
@@ -36,7 +35,7 @@ const navigationMenu = [
     {
         name: 'Program Studi',
         href: '#',
-        megaMenu: true, // Tandai untuk layout mega menu
+        megaMenu: true,
         columns: [
             {
                 title: 'Jurusan Teknik Elektro, Informatika, dan Bisnis',
@@ -63,19 +62,18 @@ const navigationMenu = [
         name: 'Kemahasiswaan',
         href: '#',
         sublinks: [
-        { name: 'Prestasi Mahasiswa', href: '/prestasi' },
+            // PERBAIKAN: Mengarahkan tautan ke route 'prestasi.index' yang benar
+            { name: 'Prestasi Mahasiswa', href: route('prestasi.index') },
             { name: 'Portal Layanan Mahasiswa', href: '#' },
         ],
     },
-{ name: 'Berita', href: '/berita' },
+    { name: 'Berita', href: route('berita.index') },
     { name: 'Kontak', href: '#' },
 ];
 
-// --- State untuk mengontrol visibilitas dropdown ---
-// Menggunakan ref untuk membuat variabel reaktif.
+// State untuk mengontrol visibilitas dropdown
 const activeDropdown = ref<string | null>(null);
 
-// --- Fungsi untuk menampilkan dan menyembunyikan dropdown ---
 function showDropdown(menuName: string) {
     activeDropdown.value = menuName;
 }
@@ -222,3 +220,4 @@ function hideDropdown() {
     display: block;
 }
 </style>
+

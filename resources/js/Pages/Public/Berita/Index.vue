@@ -6,7 +6,7 @@ import Banner from '@/Components/Banner.vue';
 import ArticleCard from '@/Components/ArticleCard.vue';
 import SidebarLatest from '@/Components/SidebarLatest.vue';
 import { Link } from '@inertiajs/vue3';
-import { Search, ListFilter, ChevronDown } from 'lucide-vue-next';
+import { Search, ListFilter, ChevronDown, FileX2 } from 'lucide-vue-next'; // PERUBAHAN: Tambahkan ikon FileX2
 import type { PaginatedPosts, Post, Filters } from '@/types';
 import { debounce } from 'lodash';
 
@@ -108,7 +108,17 @@ watch([search, category], debounce(() => {
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div class="lg:col-span-2 space-y-8">
-            <ArticleCard v-for="post in posts.data" :key="post.id" :post="post" />
+            <!-- PERUBAHAN: Logika untuk menampilkan hasil atau pesan kosong -->
+            <template v-if="posts.data.length > 0">
+              <ArticleCard v-for="post in posts.data" :key="post.id" :post="post" />
+            </template>
+            <div v-else class="bg-white border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
+                <FileX2 class="mx-auto h-16 w-16 text-gray-400" />
+                <h3 class="mt-4 text-xl font-bold text-black">Tidak Ada Berita</h3>
+                <p class="mt-1 text-black">
+                  Tidak ada berita yang cocok dengan kriteria pencarian Anda. Silakan coba kata kunci atau filter yang lain.
+                </p>
+            </div>
           </div>
           <div class="lg:col-span-1">
             <div class="sticky top-24">

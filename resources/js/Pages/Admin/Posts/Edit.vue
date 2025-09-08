@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, ref } from 'vue';
+import { onBeforeUnmount, onUnmounted, ref } from 'vue';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { useForm, Link } from '@inertiajs/vue3';
 import { 
@@ -11,6 +11,7 @@ import {
     LinkIcon,
     ArrowLeftIcon,
     PencilSquareIcon,
+    XMarkIcon, // <-- Tambahkan ikon X
 } from '@heroicons/vue/24/outline';
 
 // Import Tiptap
@@ -31,7 +32,7 @@ const props = defineProps<{
     category: string;
     tags: string;
     status: string;
-    image_url?: string; // image_url bersifat opsional
+    image_url?: string;
   }
 }>();
 
@@ -66,13 +67,25 @@ const editor = useEditor({
 });
 
 const imagePreview = ref<string | null>(props.post.image_url ?? null);
+const temporaryImageUrl = ref<string | null>(null);
+
+// PERBAIKAN: State untuk mengontrol modal
+const showImageModal = ref(false);
 
 function handleImageChange(event: Event) {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files[0]) {
     const file = target.files[0];
     form.image = file;
-    imagePreview.value = URL.createObjectURL(file);
+
+    // Hapus object URL lama jika ada untuk mencegah memory leak
+    if (temporaryImageUrl.value) {
+        URL.revokeObjectURL(temporaryImageUrl.value);
+    }
+    
+    const newUrl = URL.createObjectURL(file);
+    imagePreview.value = newUrl;
+    temporaryImageUrl.value = newUrl;
   }
 }
 
@@ -94,9 +107,27 @@ const setLink = () => {
   editor.value.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
 };
 
+// PERBAIKAN: Fungsi untuk membuka dan menutup modal
+const openImageModal = () => {
+    if (imagePreview.value) {
+        showImageModal.value = true;
+    }
+};
+const closeImageModal = () => {
+    showImageModal.value = false;
+};
+
+
 onBeforeUnmount(() => {
   editor.value?.destroy();
 });
+
+onUnmounted(() => {
+    if (temporaryImageUrl.value) {
+        URL.revokeObjectURL(temporaryImageUrl.value);
+    }
+});
+
 
 const updatePost = () => {
   form.post(route('admin.posts.update', props.post.id));
@@ -128,7 +159,6 @@ const updatePost = () => {
 
             <label for="content" class="pt-2 text-sm font-semibold text-black">Isi Konten Berita *</label>
             <div>
-              <!-- PERUBAHAN: Toolbar lengkap sekarang ditampilkan -->
               <div v-if="editor" class="flex items-center flex-wrap gap-1 border border-b-0 border-gray-300 rounded-t-md p-2 bg-gray-50 text-gray-800">
                 <button @click="applyFormat('toggleBold')" type="button" :class="{ 'is-active': editor.isActive('bold') }" class="toolbar-button"><span class="font-bold">B</span></button>
                 <button @click="applyFormat('toggleItalic')" type="button" :class="{ 'is-active': editor.isActive('italic') }" class="toolbar-button"><span class="italic">I</span></button>
@@ -139,14 +169,14 @@ const updatePost = () => {
                 <button @click="applyFormat('toggleHeading', { level: 2 })" type="button" :class="{ 'is-active': editor.isActive('heading', { level: 2 }) }" class="toolbar-button"><span class="text-md font-bold">H2</span></button>
                 <button @click="applyFormat('toggleHeading', { level: 3 })" type="button" :class="{ 'is-active': editor.isActive('heading', { level: 3 }) }" class="toolbar-button"><span class="text-sm font-bold">H3</span></button>
                 <button @click="applyFormat('toggleBlockquote')" type="button" :class="{ 'is-active': editor.isActive('blockquote') }" class="toolbar-button">
-                   <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M9.983 3v7.391c0 2.908-2.353 5.261-5.261 5.261v3.65c4.894 0 8.87-3.977 8.87-8.87V3h-3.609zM21.017 3v7.391c0 2.908-2.353 5.261-5.261 5.261v3.65c4.894 0 8.87-3.977 8.87-8.87V3h-3.609z"/></svg>
+                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M9.983 3v7.391c0 2.908-2.353 5.261-5.261 5.261v3.65c4.894 0 8.87-3.977 8.87-8.87V3h-3.609zM21.017 3v7.391c0 2.908-2.353 5.261-5.261 5.261v3.65c4.894 0 8.87-3.977 8.87-8.87V3h-3.609z"/></svg>
                 </button>
                 <div class="toolbar-divider"></div>
                 <button @click="applyFormat('toggleBulletList')" type="button" :class="{ 'is-active': editor.isActive('bulletList') }" class="toolbar-button">
                   <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h2v2H4V4zm4 0h12v2H8V4zM4 11h2v2H4v-2zm4 0h12v2H8v-2zm-4 7h2v2H4v-2zm4 0h12v2H8v-2z"/></svg>
                 </button>
                 <button @click="applyFormat('toggleOrderedList')" type="button" :class="{ 'is-active': editor.isActive('orderedList') }" class="toolbar-button">
-                   <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M5.83 4.242H8v2H4.5V4.742l1.33-.5zM4.5 11h3.5v2H4.5v-2zm0 7h3.5v2H4.5v-2zM9.5 4h10v2h-10V4zm0 7h10v2h-10v-2zm0 7h10v2h-10v-2zM4.03 4.9v.8L2.5 7H4.5V9H1V4h1.5v.9l1.53-1.8z"/></svg>
+                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M5.83 4.242H8v2H4.5V4.742l1.33-.5zM4.5 11h3.5v2H4.5v-2zm0 7h3.5v2H4.5v-2zM9.5 4h10v2h-10V4zm0 7h10v2h-10v-2zm0 7h10v2h-10v-2zM4.03 4.9v.8L2.5 7H4.5V9H1V4h1.5v.9l1.53-1.8z"/></svg>
                 </button>
                  <div class="toolbar-divider"></div>
                 <button @click="applyFormat('setTextAlign', 'left')" type="button" :class="{ 'is-active': editor.isActive({ textAlign: 'left' }) }" class="toolbar-button">
@@ -160,10 +190,10 @@ const updatePost = () => {
                 </button>
                 <div class="toolbar-divider"></div>
                 <button @click="applyFormat('undo')" type="button" :disabled="!editor.can().undo()" class="toolbar-button">
-                   <ArrowUturnLeftIcon class="h-5 w-5"/>
+                    <ArrowUturnLeftIcon class="h-5 w-5"/>
                 </button>
                 <button @click="applyFormat('redo')" type="button" :disabled="!editor.can().redo()" class="toolbar-button">
-                   <ArrowUturnRightIcon class="h-5 w-5"/>
+                    <ArrowUturnRightIcon class="h-5 w-5"/>
                 </button>
               </div>
               <EditorContent :editor="editor" />
@@ -197,8 +227,14 @@ const updatePost = () => {
             
             <label for="image" class="pt-2 text-sm font-semibold text-black">Gambar</label>
             <div>
+              <!-- PERBAIKAN: Pratinjau gambar sekarang bisa diklik -->
               <div v-if="imagePreview" class="mb-4">
-                <img :src="imagePreview" alt="Preview Gambar" class="w-48 h-auto rounded-lg object-cover">
+                <img 
+                    :src="imagePreview" 
+                    alt="Preview Gambar" 
+                    class="w-48 h-auto rounded-lg object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                    @click="openImageModal"
+                >
               </div>
               <div class="relative flex items-center w-full rounded-md border border-gray-300 bg-white shadow-sm px-4 py-2">
                   <PaperClipIcon class="h-5 w-5 text-gray-400" />
@@ -208,7 +244,7 @@ const updatePost = () => {
                   <input
                       type="file"
                       id="image"
-                      @input="handleImageChange"
+                      @change="handleImageChange"
                       class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
               </div>
@@ -237,6 +273,18 @@ const updatePost = () => {
       </form>
     </div>
   </div>
+
+  <!-- PERBAIKAN: Tambahkan Modal untuk Pratinjau Gambar Penuh -->
+  <Teleport to="body">
+    <div v-if="showImageModal" @keydown.escape="closeImageModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-75 transition-opacity">
+      <div class="relative w-full max-w-4xl max-h-[90vh]" @click.stop>
+        <img :src="imagePreview!" alt="Preview Gambar Penuh" class="w-full h-full object-contain rounded-lg">
+        <button @click="closeImageModal" class="absolute -top-2 -right-2 bg-white rounded-full p-2 text-gray-800 hover:bg-gray-200 transition shadow-lg">
+          <XMarkIcon class="h-6 w-6" />
+        </button>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <style>
@@ -259,4 +307,11 @@ const updatePost = () => {
 .toolbar-button.is-active {
   background-color: #d1d5db;
 }
+.toolbar-divider {
+    width: 1px;
+    height: 20px;
+    background-color: #d1d5db;
+    margin: 0 8px;
+}
 </style>
+

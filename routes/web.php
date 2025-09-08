@@ -5,46 +5,78 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// Import semua controller admin Anda di sini
+// Import semua controller yang relevan
 use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\AchievementsController;
 use App\Http\Controllers\PublicPostController;
+use App\Http\Controllers\PublicAchievementController; // <-- Impor controller baru
 use App\Models\Post;
 
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
+
+// --- KELOMPOK ROUTE PUBLIK ---
+
 Route::get('/', function () {
+    // Ambil 3 berita terbaru KECUALI Prestasi
+    $latestPosts = Post::where('category', '!=', 'Prestasi')
+        ->where('status', 'Terbitkan')
+        ->latest('published_at')
+        ->take(3)
+        ->get();
+
+    // Ambil 3 berita Prestasi terbaru
+    $latestAchievements = Post::where('category', 'Prestasi')
+        ->where('status', 'Terbitkan')
+        ->latest('published_at')
+        ->take(3)
+        ->get();
+
     return Inertia::render('Home', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
+        'latestPosts' => $latestPosts,
+        'latestAchievements' => $latestAchievements,
     ]);
-});
+})->name('home');
+
+// Route untuk menampilkan daftar semua berita
+Route::get('/berita', [PublicPostController::class, 'index'])->name('berita.index');
+
+// Route untuk menampilkan satu berita berdasarkan slug-nya
+Route::get('/berita/{post:slug}', [PublicPostController::class, 'show'])->name('berita.show');
+
+// PERUBAHAN: Tambahkan route untuk halaman Prestasi Mahasiswa
+Route::get('/prestasi', [PublicAchievementController::class, 'index'])->name('prestasi.index');
+
 
 // --- KELOMPOK ROUTE UNTUK ADMIN ---
 // Semua URL di sini akan diawali dengan /admin/ dan memerlukan login
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
-
     // Route untuk Dashboard
-    // URL: /admin/dashboard
     Route::get('/dashboard', function () {
         return Inertia::render('Admin/Dashboard/Index');
     })->name('dashboard');
 
-    // Route untuk Posts (Berita)
-    // Resource untuk menangani semua aksi CRUD (create, store, edit, dll.)
+    // Resource Routes untuk CRUD Posts (Berita) dan Achievements (Prestasi)
     Route::resource('/posts', AdminPostController::class);
+    Route::resource('/achievements', AchievementsController::class);
 
-    // Route untuk Achievements (Prestasi)
-    // URL: /admin/achievements
-
+    // Route untuk Impor & Ekspor Prestasi
     Route::post('/achievements/import', [AchievementsController::class, 'import'])->name('achievements.import');
     Route::get('/achievements/export', [AchievementsController::class, 'export'])->name('achievements.export');
-
-    Route::resource('/achievements', AchievementsController::class);
-    // Tambahkan route lain untuk achievements di sini nanti
-
 });
 
+
+// --- KELOMPOK ROUTE UNTUK AUTENTIKASI ---
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -57,24 +89,5 @@ Route::get('/dashboard', function () {
     return redirect()->route('admin.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// Route untuk menampilkan daftar semua berita
-Route::get('/berita', [PublicPostController::class, 'index'])->name('berita.index');
-
-// Route untuk menampilkan satu berita berdasarkan slug-nya
-Route::get('/berita/{post:slug}', [PublicPostController::class, 'show'])->name('berita.show');
-
+// Impor route-route autentikasi standar (login, register, dll.)
 require __DIR__ . '/auth.php';
-
-Route::get('/', function () {
-    // Ambil 3 berita terbaru yang sudah 'Terbitkan'
-    $latestPosts = Post::where('category', '!=', 'Prestasi')
-        ->where('status', 'Terbitkan')
-        ->latest('published_at')
-        ->take(3)
-        ->get();
-
-    return Inertia::render('Home', [
-        // ... props lain yang sudah ada ...
-        'latestPosts' => $latestPosts, // <-- Kirim data berita ke frontend
-    ]);
-});
