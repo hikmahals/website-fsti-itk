@@ -4,45 +4,57 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Post>
+ */
 class PostFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
-        // PERUBAHAN: Menambahkan daftar judul yang relevan
+        // Gunakan path tanpa prefix 'public' — karena kita pakai disk('public')
+        $imageDirectory = 'posts';
+
+        // Ambil file dari disk public (storage/app/public/posts)
+        $files = collect(Storage::disk('public')->files($imageDirectory))
+            ->filter(fn($file) => preg_match('/\.(jpg|jpeg|png|gif)$/i', $file))
+            ->values()
+            ->all();
+
+        // Jika kosong, gunakan fallback (pastikan file default ada di storage/app/public/default/post-placeholder.png)
+        if (empty($files)) {
+            $files = ['default/post-placeholder.png'];
+        }
+
+        // Konten contoh
         $titles = [
-            'Mahasiswa FSTI ITK Raih Juara 1 di Kompetisi Robotika Nasional 2025',
-            'Workshop Big Data dan AI untuk Industri 4.0 Sukses Digelar di FSTI',
-            'FSTI ITK Jalin Kerjasama Strategis dengan Perusahaan Teknologi Terkemuka',
-            'Tim Fisika Medis FSTI Publikasikan Jurnal Internasional Terindeks Scopus',
-            'Liputan Kegiatan Pengabdian Masyarakat oleh Himpunan Mahasiswa Informatika',
-            'Prestasi Gemilang: Mahasiswa FSTI Bawa Pulang Medali Emas dari Olimpiade Sains',
-            'Seminar Nasional Mengenai Keamanan Siber di Era Digital',
-            'Pengenalan Program Studi Baru: Sains Data di Lingkungan ITK',
+            'Mahasiswa FSTI ITK Raih Juara 1 di Kompetisi Gemastik 2025',
+            'Seminar Nasional: Tren Kecerdasan Buatan di Era Industri 5.0',
+            'Workshop Cybersecurity untuk Mahasiswa: Melindungi Aset Digital',
+            'FSTI ITK Buka Program Studi Baru: Sains Data Terapan',
+            'Pengabdian Masyarakat oleh Dosen FSTI di Desa Bukit Merdeka',
+            'Kunjungan Industri Mahasiswa Informatika ke Kantor Google Indonesia',
         ];
 
-        // PERUBAHAN: Menambahkan daftar tag yang relevan
-        $tags = ['Prestasi Mahasiswa', 'Workshop', 'AI', 'Kerjasama Industri', 'Pengabdian Masyarakat', 'Seminar', 'Sains Data', 'Fisika'];
+        $title = $this->faker->randomElement($titles);
+        $content = '<p>' . implode('</p><p>', $this->faker->paragraphs(rand(5, 10))) . '</p>';
+        $publishedDate = $this->faker->dateTimeBetween('-1 year', 'now');
 
-        // Memilih judul acak dari daftar di atas
-        $title = $this->faker->randomElement($titles) . ' ' . Str::random(3); // Ditambah string acak agar unik
+        $categories = ['Prestasi', 'Liputan Kegiatan', 'Kerjasama'];
+        $tags = ['ITK', 'FSTI', 'Prestasi', 'Seminar', 'Workshop', 'Sains Data', 'Cybersecurity', 'AI'];
+        $statuses = ['Terbitkan', 'Draft'];
 
         return [
-            'title' => $title,
-            'slug' => Str::slug($title),
-            'excerpt' => $this->faker->paragraph(3), // Faker sekarang akan menghasilkan paragraf Bahasa Indonesia
-            'content' => '<p>' . implode('</p><p>', $this->faker->paragraphs(12)) . '</p>', // Konten HTML Bahasa Indonesia
-            'image_path' => null,
-            'category' => $this->faker->randomElement(['Prestasi', 'Liputan Kegiatan', 'Kerjasama']),
-            'tags' => $this->faker->randomElement($tags),
-            'status' => 'Terbitkan',
-            'published_at' => now(),
-            'views' => $this->faker->numberBetween(50, 2500),
+            'title'        => $title,
+            'slug' => Str::slug($this->faker->unique()->sentence()) . '-' . Str::random(5),
+            'excerpt'      => Str::limit(strip_tags($content), 150),
+            'content'      => $content,
+            'image_path'   => $this->faker->randomElement($files), // contoh: 'posts/xxx.jpg' atau 'default/post-placeholder.png'
+            'category'     => $this->faker->randomElement($categories),
+            'tags'         => implode(',', $this->faker->randomElements($tags, rand(1, 3))),
+            'status'       => $this->faker->randomElement($statuses),
+            'published_at' => $publishedDate,
         ];
     }
 }

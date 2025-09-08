@@ -4,16 +4,20 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\Post; // <-- Jangan lupa import model Post
+use App\Models\Post;
+use Illuminate\Support\Facades\DB; // <-- Tambahkan ini
 
 class PostSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        // Hapus data lama agar tidak duplikat (opsional)
-        Post::query()->delete();
+        // Kosongkan tabel posts sebelum diisi
+        DB::table('posts')->truncate();
 
-        // Menggunakan factory untuk membuat 25 data berita
-        Post::factory()->count(25)->create();
+        // Buat 10 data berita palsu menggunakan factory
+        Post::factory(10)->create();
     }
 }

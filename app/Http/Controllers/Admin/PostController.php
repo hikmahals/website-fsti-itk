@@ -93,7 +93,7 @@ class PostController extends Controller
     public function update(Request $request, Post $post)
     {
         $validatedData = $request->validate([
-            'title' => 'required|string|max:255|unique:posts,title,' . $post->id,
+            'title' => 'required|string|max:255|unique:posts,title,' . $post->id . ',id',
             'excerpt' => 'required|string',
             'content' => 'required|string',
             'category' => 'required|in:Prestasi,Liputan Kegiatan,Kerjasama',
