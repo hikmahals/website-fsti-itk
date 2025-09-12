@@ -6,25 +6,33 @@ use App\Models\Achievement;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\DB; // Import DB Facade
 
 class PublicAchievementController extends Controller
 {
-    /**
-     * Menampilkan halaman utama Prestasi Mahasiswa.
-     */
     public function index(Request $request)
     {
         // 1. Ambil 3 Berita terbaru dengan kategori "Prestasi" sebagai sorotan
         $featuredAchievements = Post::where('category', 'Prestasi')
             ->where('status', 'Terbitkan')
+            ->whereNotNull('published_at') // Pastikan tanggal publikasi ada
+            ->where('published_at', '!=', '0000-00-00 00:00:00') // Hindari tanggal tidak valid
             ->latest('published_at')
             ->take(3)
             ->get();
 
-        // 2. Ambil semua data dari tabel 'achievements' untuk tabel daftar prestasi
+        // --- PERUBAHAN BARU: HITUNG STATISTIK ---
+        $currentYear = date('Y');
+        $stats = [
+            'total_this_year' => Achievement::where('year', $currentYear)->count(),
+            'international' => Achievement::where('level', 'Internasional')->count(),
+            'national' => Achievement::where('level', 'Nasional')->count(),
+        ];
+        
+        // 2. Ambil data prestasi untuk galeri dengan filter
         $query = Achievement::query();
 
-        // Filter pencarian untuk tabel
+        // Filter pencarian
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -32,27 +40,33 @@ class PublicAchievementController extends Controller
                     ->orWhere('competition_name', 'like', "%{$search}%");
             });
         }
-
-        // Filter berdasarkan tahun
+        // Filter tahun
         if ($request->filled('year')) {
             $query->where('year', $request->year);
         }
-
-        // Filter berdasarkan tingkat
+        // Filter tingkat
         if ($request->filled('level')) {
             $query->where('level', $request->level);
         }
 
-        $achievements = $query->latest()->paginate(10)->withQueryString();
+        $achievements = $query->latest()->paginate(9)->withQueryString();
+        
+        // --- PERUBAHAN BARU: TAMBAHKAN FOTO DUMMY ---
+        // NOTE: Ini hanya untuk demo. Sebaiknya Anda menambahkan kolom 'photo_url'
+        // di tabel 'achievements' dan mengupload foto asli.
+        $achievements->getCollection()->transform(function ($achievement) {
+            $achievement->photo_url = 'https://placehold.co/600x400/133E87/FFFFFF?text=' . urlencode($achievement->student_name);
+            return $achievement;
+        });
 
-        // Ambil daftar tahun dan tingkat unik untuk filter dropdown
+        // Ambil daftar tahun dan tingkat unik untuk filter
         $years = Achievement::distinct()->orderBy('year', 'desc')->pluck('year');
         $levels = Achievement::distinct()->pluck('level');
 
-        // PERBAIKAN: Menyesuaikan path agar cocok dengan nama folder 'Prestasi' Anda
         return Inertia::render('Public/Prestasi/Index', [
             'featuredAchievements' => $featuredAchievements,
             'achievements' => $achievements,
+            'stats' => $stats, // Kirim statistik ke frontend
             'filters' => $request->only(['search', 'year', 'level']),
             'years' => $years,
             'levels' => $levels,
