@@ -1,38 +1,26 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { Globe, Flag, Building, Calendar, Award } from 'lucide-vue-next';
+import { GraduationCap, Award, Calendar, Trophy, Medal } from 'lucide-vue-next';
 
 interface Achievement {
   id: number;
   student_name: string;
-  competition_name: string;
+  study_program: string;
+  achievement_name: string;
   organizer: string;
   level: string;
+  category: string;
   year: number;
-  photo_url?: string; // Foto bersifat opsional
+  photo_url: string;
 }
 
 const props = defineProps<{
   achievement: Achievement;
 }>();
-
-// Logika untuk menentukan ikon dan warna badge berdasarkan tingkat prestasi
-const levelInfo = computed(() => {
-    switch (props.achievement.level.toLowerCase()) {
-        case 'internasional':
-            return { icon: Globe, color: 'bg-yellow-500 text-white', label: 'Internasional' };
-        case 'nasional':
-            return { icon: Flag, color: 'bg-red-600 text-white', label: 'Nasional' };
-        default:
-            return { icon: Building, color: 'bg-blue-500 text-white', label: props.achievement.level };
-    }
-});
 </script>
 
 <template>
-    <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 group">
-        <!-- Bagian Gambar -->
-        <div class="aspect-video bg-gray-200">
+      <div class="bg-[#CBDCEB] rounded-lg overflow-hidden transition-all duration-300 ease-in-out hover:-translate-y-2 flex flex-col">
+        <div class="aspect-video">
             <img 
                 :src="achievement.photo_url" 
                 :alt="'Foto ' + achievement.student_name" 
@@ -42,32 +30,32 @@ const levelInfo = computed(() => {
             >
         </div>
 
-        <!-- Bagian Konten -->
-        <div class="p-6 flex flex-col h-full">
-            <h3 class="text-xl font-bold text-[#133E87] mb-2 leading-tight">
-                {{ achievement.student_name }}
-            </h3>
-            <p class="text-gray-700 font-semibold flex-grow">
-                <Award class="inline-block w-4 h-4 mr-2 text-yellow-500" />
-                {{ achievement.competition_name }}
-            </p>
-            <p class="text-sm text-gray-500 mt-1 mb-4">
-                Oleh: {{ achievement.organizer }}
-            </p>
-
-            <!-- Bagian Metadata (Tingkat & Tahun) -->
-            <div class="mt-auto pt-4 border-t border-gray-100 flex justify-between items-center text-sm">
-                <span 
-                    :class="levelInfo.color" 
-                    class="inline-flex items-center font-bold px-3 py-1 rounded-full text-xs"
-                >
-                    <component :is="levelInfo.icon" class="w-4 h-4 mr-2" />
-                    {{ levelInfo.label }}
+        <div class="p-5 flex flex-col flex-grow">
+            <div class="flex items-center gap-2 mb-3">
+                <span class="flex items-center gap-1 text-xs font-semibold text-[#133E87] bg-white px-2 py-1 rounded-full border border-[#133E87]">
+                    <Trophy class="h-3 w-3" /> {{ achievement.category }}
                 </span>
-                <span class="text-gray-600 font-medium flex items-center">
-                    <Calendar class="w-4 h-4 mr-2 text-gray-400" />
+                <span class="flex items-center gap-1 text-xs font-semibold text-[#133E87] bg-white px-2 py-1 rounded-full border border-[#133E87]">
+                    <Medal class="h-3 w-3" /> {{ achievement.level }}
+                </span>
+                <span class="flex items-center gap-1 text-xs font-semibold text-[#133E87] bg-white px-2 py-1 rounded-full border border-[#133E87]">
+                    <Calendar class="h-3 w-3" />
                     {{ achievement.year }}
                 </span>
+            </div>
+
+            <h3 class="text-xl font-bold text-black">{{ achievement.student_name }}</h3>
+            <p class="flex items-center gap-2 text-sm text-black mt-1"> <GraduationCap class="h-4 w-4" />
+                {{ achievement.study_program }}
+            </p>
+
+            <div class="mt-4 pt-4 border-t border-gray-400/50 flex-grow flex flex-col">
+                <p class="flex items-start gap-2 text-base font-bold text-black">
+                    <Award class="h-5 w-5 flex-shrink-0 mt-0.5" />
+                    <span class="flex-1">{{ achievement.achievement_name }}</span>
+                </p>
+                <p class="text-sm text-black mt-2"> Oleh: {{ achievement.organizer }}
+                </p>
             </div>
         </div>
     </div>

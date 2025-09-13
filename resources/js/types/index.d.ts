@@ -29,6 +29,7 @@ export interface Post {
   views: number;
   created_at: string;
   updated_at: string;
+  thumbnail_url: string;
 }
 
 export interface PaginatorLink {
@@ -49,6 +50,8 @@ export interface PaginatedPosts {
 export interface Filters {
     search: string | null;
     category: string | null;
+    level?: string; // Tambahkan ini
+    year?: string;   // Tambahkan ini
 }
 
 export interface Achievement {
