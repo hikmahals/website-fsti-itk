@@ -87,7 +87,7 @@ onMounted(() => {
         <span class="border border-[#133E87] rounded-md px-3 py-1 text-xs font-semibold">
           {{ post.category }}
         </span>
-        <span class="flex items-center gap-2 text-gray-600">
+        <span class="flex items-center gap-2 text-black">
           <Calendar class="w-4 h-4" />
           {{ formattedDate }}
         </span>

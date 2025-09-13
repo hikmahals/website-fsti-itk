@@ -89,5 +89,14 @@ Route::get('/dashboard', function () {
     return redirect()->route('admin.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+// Route untuk halaman Visi & Misi
+Route::get('/profil/visi-misi', function () {
+    return Inertia::render('Public/Profil/VisiMisi');
+})->name('visi-misi');
+
+Route::get('/profil/bagan-organisasi', function () {
+    return Inertia::render('Public/Profil/BaganOrganisasi');
+})->name('bagan-organisasi');
+
 // Impor route-route autentikasi standar (login, register, dll.)
 require __DIR__ . '/auth.php';

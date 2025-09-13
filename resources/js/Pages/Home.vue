@@ -166,7 +166,7 @@ onMounted(() => {
                         <h2 class="text-4xl font-bold font-kulim-park text-[#4682A9] about-title">
                             Sekilas Tentang FSTI ITK
                         </h2>
-                        <p class="mt-6 text-gray-600 leading-relaxed about-text">
+                        <p class="mt-6 text-black leading-relaxed about-text">
                             FSTI terus berkembang sebagai pusat pendidikan dan inovasi di bidang sains dan teknologi, dengan berbagai jurusan, program studi, dan civitas akademika yang mendukung perjalanan belajar, kreativitas, dan prestasi mahasiswa kami.
                         </p>
                         <div ref="aboutStatsRef" class="mt-2 grid grid-cols-2 md:grid-cols-4 gap-4">
