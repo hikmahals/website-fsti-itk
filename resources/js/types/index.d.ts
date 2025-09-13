@@ -62,6 +62,10 @@ export interface Achievement {
   organizer: string;
   year: number;
   proof_url?: string | null; // URL lengkap untuk file bukti
+  photo_path: string;
+
+  photo_url: string;
+  proof_url?: string | null;
 }
 
 export interface PaginatedAchievements {

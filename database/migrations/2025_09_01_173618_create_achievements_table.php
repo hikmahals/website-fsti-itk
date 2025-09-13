@@ -46,6 +46,7 @@ return new class extends Migration
             $table->string('organizer'); // VARCHAR(255) untuk Penyelenggara
             $table->year('year'); // YEAR untuk Tahun Prestasi
             $table->string('proof_path')->nullable(); // VARCHAR(255) untuk path bukti, boleh kosong
+            $table->string('photo_path');
             $table->timestamps(); // created_at dan updated_at
         });
     }

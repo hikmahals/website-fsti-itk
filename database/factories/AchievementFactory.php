@@ -15,23 +15,28 @@ class AchievementFactory extends Factory
 
     public function definition(): array
     {
-        // Folder penyimpanan gambar bukti
-        $imageDirectory = 'achievement';
-
-        // Ambil semua file di storage/app/public/achievement
-        $files = Storage::disk('public')->files($imageDirectory);
-
-        // Buang prefix "public/" biar sesuai path database
-        $imagePaths = array_map(function ($file) {
-            return str_replace('public/', '', $file);
-        }, $files);
-
-        // Kalau folder kosong → fallback ke default
-        if (empty($imagePaths)) {
-            // Default proof_path kalau tidak ada gambar
-            $imagePaths = ['achievement/default.png'];
+        // --- PENAMBAHAN: Logika untuk Foto Mahasiswa (Wajib) ---
+        $photoDirectory = 'achievement/photos';
+        $photoFiles = Storage::disk('public')->files($photoDirectory);
+        // Jika folder foto kosong, berikan nilai null (atau path default jika ada)
+        if (empty($photoFiles)) {
+            $selectedPhotoPath = null;
+        } else {
+            $selectedPhotoPath = $this->faker->randomElement($photoFiles);
         }
 
+        // --- PENYESUAIAN: Logika untuk Bukti (Opsional) ---
+        // Nama folder diubah sesuai kesepakatan menjadi 'achievements/proofs'
+        $proofDirectory = 'achievement/proofs';
+        $proofFiles = Storage::disk('public')->files($proofDirectory);
+
+        $selectedProofPath = null; // Defaultnya null (opsional)
+        // Jika ada file bukti dan hasil acak true (kemungkinan 50%), baru kita isi path-nya
+        if (!empty($proofFiles) && $this->faker->boolean(50)) {
+            $selectedProofPath = $this->faker->randomElement($proofFiles);
+        }
+
+        // --- BAGIAN LAMA ANDA (TIDAK DIUBAH) ---
         $studyPrograms = [
             'Teknik Elektro',
             'Sistem Informasi',
@@ -62,6 +67,7 @@ class AchievementFactory extends Factory
             'Pemerintah Kota Balikpapan'
         ];
 
+        // --- PENYESUAIAN PADA RETURN ---
         return [
             'student_name'      => $this->faker->name(),
             'student_nim'       => '1101' . $this->faker->unique()->numerify('21####'),
@@ -71,7 +77,12 @@ class AchievementFactory extends Factory
             'level'             => $this->faker->randomElement($levels),
             'organizer'         => $this->faker->randomElement($organizers),
             'year'              => $this->faker->numberBetween(2021, 2025),
-            'proof_path'        => $this->faker->randomElement($imagePaths),
+
+            // Kolom photo_path baru, mengambil dari logika di atas (wajib)
+            'photo_path'        => $selectedPhotoPath,
+
+            // Kolom proof_path disesuaikan, mengambil dari logika di atas (opsional)
+            'proof_path'        => $selectedProofPath,
         ];
     }
 }

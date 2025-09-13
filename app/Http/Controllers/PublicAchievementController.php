@@ -3,73 +3,71 @@
 namespace App\Http\Controllers;
 
 use App\Models\Achievement;
-use App\Models\Post;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\DB; // Import DB Facade
+use Illuminate\Support\Facades\DB;
 
 class PublicAchievementController extends Controller
 {
+    /**
+     * Menampilkan halaman galeri prestasi publik dengan statistik dan filter lengkap.
+     * Versi ini tidak lagi mengambil berita sorotan.
+     */
     public function index(Request $request)
     {
-        // 1. Ambil 3 Berita terbaru dengan kategori "Prestasi" sebagai sorotan
-        $featuredAchievements = Post::where('category', 'Prestasi')
-            ->where('status', 'Terbitkan')
-            ->whereNotNull('published_at') // Pastikan tanggal publikasi ada
-            ->where('published_at', '!=', '0000-00-00 00:00:00') // Hindari tanggal tidak valid
-            ->latest('published_at')
-            ->take(3)
-            ->get();
-
-        // --- PERUBAHAN BARU: HITUNG STATISTIK ---
-        $currentYear = date('Y');
+        // 1. Hitung Statistik Lengkap
         $stats = [
-            'total_this_year' => Achievement::where('year', $currentYear)->count(),
+            'total_all_time' => Achievement::count(),
             'international' => Achievement::where('level', 'Internasional')->count(),
             'national' => Achievement::where('level', 'Nasional')->count(),
+            'academic' => Achievement::where('category', 'Akademik')->count(),
+            'non_academic' => Achievement::where('category', 'Non-Akademik')->count(),
         ];
-        
-        // 2. Ambil data prestasi untuk galeri dengan filter
+
+        // 2. Logika Query untuk Galeri dengan Filter Lengkap
         $query = Achievement::query();
 
-        // Filter pencarian
+        // Filter: Pencarian (Nama Mahasiswa atau Lomba)
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('student_name', 'like', "%{$search}%")
-                    ->orWhere('competition_name', 'like', "%{$search}%");
+                    ->orWhere('achievement_name', 'like', "%{$search}%");
             });
         }
-        // Filter tahun
+
+        // Filter: Tahun
         if ($request->filled('year')) {
+            // INI BAGIAN YANG DIPERBAIKI
             $query->where('year', $request->year);
         }
-        // Filter tingkat
+
+        // Filter: Tingkat
         if ($request->filled('level')) {
             $query->where('level', $request->level);
         }
 
-        $achievements = $query->latest()->paginate(9)->withQueryString();
-        
-        // --- PERUBAHAN BARU: TAMBAHKAN FOTO DUMMY ---
-        // NOTE: Ini hanya untuk demo. Sebaiknya Anda menambahkan kolom 'photo_url'
-        // di tabel 'achievements' dan mengupload foto asli.
-        $achievements->getCollection()->transform(function ($achievement) {
-            $achievement->photo_url = 'https://placehold.co/600x400/133E87/FFFFFF?text=' . urlencode($achievement->student_name);
-            return $achievement;
-        });
+        // Filter: Kategori
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
+        }
 
-        // Ambil daftar tahun dan tingkat unik untuk filter
+        // Ambil data prestasi dengan paginasi
+        $achievements = $query->latest()->paginate(9)->withQueryString();
+
+        // 3. Ambil Opsi Unik untuk Dropdown Filter
         $years = Achievement::distinct()->orderBy('year', 'desc')->pluck('year');
         $levels = Achievement::distinct()->pluck('level');
+        $categories = Achievement::distinct()->pluck('category');
 
+        // 4. Render Halaman dengan Semua Data yang Diperlukan
         return Inertia::render('Public/Prestasi/Index', [
-            'featuredAchievements' => $featuredAchievements,
             'achievements' => $achievements,
-            'stats' => $stats, // Kirim statistik ke frontend
-            'filters' => $request->only(['search', 'year', 'level']),
+            'stats' => $stats,
+            'filters' => $request->only(['search', 'year', 'level', 'category']),
             'years' => $years,
             'levels' => $levels,
+            'categories' => $categories,
         ]);
     }
 }

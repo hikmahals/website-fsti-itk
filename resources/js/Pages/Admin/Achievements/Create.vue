@@ -14,6 +14,7 @@ const form = useForm({
   level: '', // Dikosongkan agar placeholder muncul
   organizer: '',
   year: new Date().getFullYear(),
+  photo: null as File | null, // <-- PENAMBAHAN FOTO
   proof: null as File | null,
 });
 
@@ -24,19 +25,15 @@ const submit = () => {
 
 <template>
   <div>
-    <!-- Judul dan Deskripsi -->
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-black">Tambah Prestasi</h1>
       <p class="mt-1 text-black">Tambah prestasi baru mahasiswa Fakultas Sains dan Teknologi Institut Teknologi Kalimantan</p>
     </div>
 
-    <!-- Kontainer Form Utama -->
     <div class="bg-white shadow-sm p-8 rounded-lg">
       <form @submit.prevent="submit">
-        <!-- Grid untuk menata letak form -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
           
-          <!-- Kolom Kiri -->
           <div class="space-y-6">
             <div>
               <label for="student_name" class="block text-sm font-semibold text-black">Nama Mahasiswa *</label>
@@ -74,7 +71,6 @@ const submit = () => {
             </div>
           </div>
 
-          <!-- Kolom Kanan -->
           <div class="space-y-6">
             <div>
               <label for="category" class="block text-sm font-semibold text-black">Kategori *</label>
@@ -112,13 +108,23 @@ const submit = () => {
             </div>
           </div>
 
-          <!-- Kolom Bukti (membentang penuh) -->
           <div class="md:col-span-2">
-            <label for="proof" class="block text-sm font-semibold text-black">Bukti *</label>
+            <label for="photo" class="block text-sm font-semibold text-black">Foto Mahasiswa/Tim *</label>
             <div class="mt-1 relative flex items-center w-full rounded-md border border-gray-300 bg-white shadow-sm px-4 py-2">
               <PaperClipIcon class="h-5 w-5 text-gray-400" />
+              <span class="ml-3 text-sm" :class="{'text-gray-400': !form.photo, 'text-black': form.photo}">
+                {{ form.photo ? form.photo.name : 'Unggah foto mahasiswa atau tim (Wajib)' }}
+              </span>
+              <input type="file" id="photo" @input="form.photo = ($event.target as HTMLInputElement).files?.[0] || null" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+            </div>
+            <p v-if="form.errors.photo" class="mt-2 text-sm text-red-600">{{ form.errors.photo }}</p>
+          </div>
+
+          <div class="md:col-span-2">
+            <label for="proof" class="block text-sm font-semibold text-black">Bukti (Opsional)</label> <div class="mt-1 relative flex items-center w-full rounded-md border border-gray-300 bg-white shadow-sm px-4 py-2">
+              <PaperClipIcon class="h-5 w-5 text-gray-400" />
               <span class="ml-3 text-sm" :class="{'text-gray-400': !form.proof, 'text-black': form.proof}">
-                {{ form.proof ? form.proof.name : 'Masukkan bukti berupa sertifikat atau gambar yang sesuai' }}
+                {{ form.proof ? form.proof.name : 'Masukkan bukti berupa sertifikat atau gambar' }}
               </span>
               <input type="file" id="proof" @input="form.proof = ($event.target as HTMLInputElement).files?.[0] || null" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
             </div>
@@ -126,7 +132,6 @@ const submit = () => {
           </div>
         </div>
 
-        <!-- Tombol Aksi -->
         <div class="mt-12 flex items-center justify-end gap-4">
             <Link :href="route('admin.achievements.index')" class="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50">
                 <ArrowLeftIcon class="h-5 w-5" />
