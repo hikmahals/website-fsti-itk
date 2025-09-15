@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\AchievementsController;
 use App\Http\Controllers\PublicPostController;
 use App\Http\Controllers\PublicAchievementController; // <-- Impor controller baru
 use App\Models\Post;
+use App\Models\Achievement;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,25 +27,19 @@ use App\Models\Post;
 // --- KELOMPOK ROUTE PUBLIK ---
 
 Route::get('/', function () {
-    // Ambil 3 berita terbaru KECUALI Prestasi
     $latestPosts = Post::where('category', '!=', 'Prestasi')
         ->where('status', 'Terbitkan')
         ->latest('published_at')
         ->take(3)
         ->get();
 
-    // Ambil 3 berita Prestasi terbaru
-    $latestAchievements = Post::where('category', 'Prestasi')
-        ->where('status', 'Terbitkan')
-        ->latest('published_at')
-        ->take(3)
-        ->get();
+    $latestAchievements = Achievement::latest()->take(3)->get();
 
     return Inertia::render('Home', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'latestPosts' => $latestPosts,
-        'latestAchievements' => $latestAchievements,
+        'latestAchievements' => $latestAchievements, // Data ini sekarang berasal dari model Achievement
     ]);
 })->name('home');
 

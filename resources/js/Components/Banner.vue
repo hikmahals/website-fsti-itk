@@ -21,7 +21,7 @@ const bannerStyle = computed(() => {
 
 <template>
   <div
-    class="relative h-64 md:h-50 w-full bg-cover bg-center flex items-center justify-center shadow-sm"
+    class="relative h-64 md:h-50 w-full bg-cover bg-center flex items-center justify-center shadow-sm mt-8"
     :style="bannerStyle"
   >
     <div class="absolute inset-0 bg-white opacity-10"></div>
