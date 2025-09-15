@@ -123,5 +123,9 @@ Route::get('/profil/tenaga-kependidikan', function () {
     return Inertia::render('Public/Profil/TenagaKependidikan');
 })->name('profil.tenaga-kependidikan');
 
+Route::get('/program-studi/matematika', function () {
+    return Inertia::render('Public/ProgramStudi/Matematika');
+})->name('prodi.matematika');
+
 // Impor route-route autentikasi standar (login, register, dll.)
 require __DIR__ . '/auth.php';

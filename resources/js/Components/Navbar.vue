@@ -52,7 +52,7 @@ const navigationMenu = [
                 title: 'Jurusan Sains dan Analitika Data',
                 links: [
                     { name: 'Program Studi Fisika', href: '#' },
-                    { name: 'Program Studi Matematika', href: '#' },
+                    { name: 'Program Studi Matematika', href: route('prodi.matematika') },
                     { name: 'Program Studi Statistika', href: '#' },
                     { name: 'Program Studi Ilmu Aktuaria', href: '#' },
                 ],
