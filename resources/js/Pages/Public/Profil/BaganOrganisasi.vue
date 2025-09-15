@@ -34,7 +34,7 @@ import { Head } from '@inertiajs/vue3';
                             <div class="flex-grow p-6 md:p-8">
                                 <div class="flex justify-center">
                                     <img
-                                        src="/images/bagan-organisasi.png"
+                                        src="/images/bagan-organisasi.webp"
                                         alt="Bagan Organisasi FSTI ITK"
                                         class="w-full h-auto object-contain"
                                     />
