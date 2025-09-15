@@ -68,7 +68,7 @@ const navigationMenu = [
         ],
     },
     { name: 'Berita', href: route('berita.index') },
-    { name: 'Kontak', href: '#' },
+    { name: 'Kontak', href: route('kontak') },
 ];
 
 // State untuk mengontrol visibilitas dropdown

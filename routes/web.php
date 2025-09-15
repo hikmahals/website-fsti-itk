@@ -127,5 +127,11 @@ Route::get('/program-studi/matematika', function () {
     return Inertia::render('Public/ProgramStudi/Matematika');
 })->name('prodi.matematika');
 
+
+Route::get('/kontak', function () {
+    return Inertia::render('Public/Kontak');
+})->name('kontak');
+
+
 // Impor route-route autentikasi standar (login, register, dll.)
 require __DIR__ . '/auth.php';

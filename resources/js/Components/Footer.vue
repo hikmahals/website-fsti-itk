@@ -48,8 +48,8 @@ onUnmounted(() => {
                         <svg class="h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
                     </a>
                     <a href="https://www.tiktok.com/@fsti.itk" target="_blank" rel="noopener noreferrer" class="bg-[#1e3a8a] p-3 rounded-full shadow-md hover:opacity-90 transition-opacity">
-                        <svg class="h-8 w-8 text-white" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-                            <path d="M448 209.9a210.1 210.1 0 0 1 -122.8-39.3v178.7a162.5 162.5 0 1 1 -162.5-162.5v99.9a74.6 74.6 0 1 0 74.6 74.6v-249a121.2 121.2 0 0 0 -1.9-22.2h0A121.2 121.2 0 0 0 240.1 0H288v50.2a176.8 176.8 0 0 1 -52.2 4.2v0a122.2 122.2 0 0 0 102.4 122.2 121.4 121.4 0 0 0 67 20.1z"/>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" viewBox="0 0 449.45 515.38" fill="currentColor">
+                        <path d="M382.31 103.3c-27.76-18.1-47.79-47.07-54.04-80.82-1.35-7.29-2.1-14.8-2.1-22.48h-88.6l-.15 355.09c-1.48 39.77-34.21 71.68-74.33 71.68-12.47 0-24.21-3.11-34.55-8.56-23.71-12.47-39.94-37.32-39.94-65.91 0-41.07 33.42-74.49 74.48-74.49 7.67 0 15.02 1.27 21.97 3.44V190.8c-7.2-.99-14.51-1.59-21.97-1.59C73.16 189.21 0 262.36 0 352.3c0 55.17 27.56 104 69.63 133.52 26.48 18.61 58.71 29.56 93.46 29.56 89.93 0 163.08-73.16 163.08-163.08V172.23c34.75 24.94 77.33 39.64 123.28 39.64v-88.61c-24.75 0-47.8-7.35-67.14-19.96z"/>
                         </svg>
                     </a>
                 </div>
@@ -90,7 +90,7 @@ onUnmounted(() => {
                             <div class="mt-1 flex-shrink-0"><svg class="h-5 w-5 text-[#133E87]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.415L11 9.586V6z" clip-rule="evenodd" /></svg></div>
                             <div>
                                 <p class="font-semibold">Jam Operasional</p>
-                                <p>Senin - Jum'at, 07.30 - 16.00 WITA</p>
+                                <p>Senin - Jum'at, 07.30 - 16.30 WITA</p>
                             </div>
                         </li>
                     </ul>
