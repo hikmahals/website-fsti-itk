@@ -98,5 +98,30 @@ Route::get('/profil/bagan-organisasi', function () {
     return Inertia::render('Public/Profil/BaganOrganisasi');
 })->name('bagan-organisasi');
 
+Route::get('/profil/pimpinan-fakultas', function () {
+    return Inertia::render('Public/Profil/PimpinanFakultas');
+})->name('profil.pimpinan-fakultas');
+
+Route::get('/profil/pimpinan-jurusan', function () {
+    return Inertia::render('Public/Profil/PimpinanJurusan');
+})->name('profil.pimpinan-jurusan');
+
+Route::get('/profil/pimpinan-prodi', function () {
+    return Inertia::render('Public/Profil/PimpinanProdi');
+})->name('profil.pimpinan-prodi');
+
+Route::get('/profil/pimpinan-laboratorium', function () {
+    return Inertia::render('Public/Profil/PimpinanLaboratorium');
+})->name('profil.pimpinan-laboratorium');
+
+Route::get('/profil/dosen', function () {
+    return Inertia::render('Public/Profil/Dosen');
+})->name('profil.dosen');
+
+
+Route::get('/profil/tenaga-kependidikan', function () {
+    return Inertia::render('Public/Profil/TenagaKependidikan');
+})->name('profil.tenaga-kependidikan');
+
 // Impor route-route autentikasi standar (login, register, dll.)
 require __DIR__ . '/auth.php';
